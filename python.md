@@ -5,6 +5,7 @@
 - There are 33 keywords in Python 3.3
 - decorators:
     - A decorator takes in a function, adds some functionality and returns it.
+    - Good explanation: https://gist.github.com/Zearin/2f40b7b9cfc51132851a
 - closure:
     - `nonlocal` variable declaration.
     - Technique by which some data ("Hello") gets attached to the code is called closure in Python.
@@ -119,3 +120,18 @@
     - Pyramid is the most flexible of the three. It can be used for small apps as we've seen here, but it also powers big-name sites like Dropbox. Open Source communities like Fedora choose it for applications like their community badges system, which receives information about events from many of the project's tools to award achievement-style badges to users. One of the most common complaints about Pyramid is that it presents so many options it can be intimidating to start a new project.
     - By far the most popular framework is Django, and the list of sites that use it is impressive. Bitbucket, Pinterest, Instagram, and The Onion use Django for all or part of their sites. For sites that have common requirements, Django chooses very sane defaults and because of this it has become a popular choice for mid- to large-sized web applications.
     - Flask is great for developers working on small projects that need a fast way to make a simple, Python-powered web site. It powers loads of small one-off tools, or simple web interfaces built over existing APIs. Backend projects that need a simple web interface that is fast to develop and will require little configuration often benefit from Flask on the frontend, like jitviewer which provides a web interface for inspecting PyPy just-in-time compiler logs.
+- Debugging tools:
+    + pdb cheetsheet: https://kapeli.com/cheat_sheets/Python_Debugger.docset/Contents/Resources/Documents/index
+
+---
+
+## [Threading](https://blog.usejournal.com/multithreading-vs-multiprocessing-in-python-c7dc88b50b5b):
+- **Issue**: One problem arises because threads use the same memory heap, multiple threads can write to the same location in the memory heap which is why the default Python interpreter has a thread-safe mechanism, the “GIL” (Global Interpreter Lock). This prevent conflicts between threads, by executing only one statement at a time (serial processing, or single-threading).
+- **GIL**: The Global Interpretor Lock (GIL) in CPython prevents parallel threads of execution on multiple cores, thus the threading implementation on python is useful mostly for concurrent thread implementation in web-servers.
+
+## Multithreading
+- The multithreading library is lightweight, shares memory, responsible for responsive UI and is used well for I/O bound applications.
+- Multiple threads live in the same process in the same space, each thread will do a specific task, have its own code, own stack memory, instruction pointer, and share heap memory. If a thread has a memory leak it can damage the other threads and parent process.
+
+- Further Readings:
+    - https://glyph.twistedmatrix.com/2014/02/unyielding.html

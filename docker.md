@@ -61,7 +61,9 @@ $ `docker image ls`
 - Now we will run a container based on the newly created ourfiglet image:
 $ `docker container run ourfiglet figlet hello`
 
+
 ---
+
 
 ## Docker Compose
 Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a **YAML file** to configure your application’s services. Then, with a single command, you create and start all the services from your configuration.
@@ -76,3 +78,50 @@ Compose is a tool for defining and running multi-container Docker applications. 
 - View the status of running services
 - Stream the log output of running services
 - Run a one-off command on a service
+
+---
+
+## How to dockerize any application (https://hackernoon.com/how-to-dockerize-any-application-b60ad00e76da)
+
+1. Choose a base Image - Python or alpine
+2. Install the necessary packages - Double check if you are installing ONLY what you really need
+3. Add your custom files
+4. Define which user will (or can) run your container
+5. Define the exposed ports
+6. Define the entrypoint - create a “docker-entrypoint.sh” script where you can hook things like configuration using environment variables
+7. Define a Configuration method
+    1. Use an application specific configuration file  
+    2. Use (operating system) Environment variables
+8. Externalize your data - do not save any persistent data inside the container instead should be saved either on a mounted volume or on a bind mounts.
+    1. create a non privileged user (and group) on the Base OS.
+    2. All bind folders (-v) are created using this user as owner.
+    3. Permissions are given accordingly (only to this specific user and group, other users will have no access to that).
+    4. The container will be run with this user.
+    5. You will be in full control of that.
+    6. Config management: https://www.saltstack.com/resources/community/
+9. Make sure you handle the logs as well
+    1. The application should use stdout and stderr as an event stream.
+    2. Ref: https://docs.docker.com/engine/reference/commandline/logs/ 
+10. Rotate logs and other append only files (log rotation)
+    1.  Ref: https://www.aerospike.com/docs/operations/configure/log/logrotate.html 
+    2. Ref: https://www.digitalocean.com/community/tutorials/how-to-manage-logfiles-with-logrotate-on-ubuntu-16-04 
+
+
+
+## Processes In Containers Should Not Run As Root (https://medium.com/@mccode/processes-in-containers-should-not-run-as-root-2feae3f0df3b)
+
+* create a user in your Dockerfile with a known UID and GID, and run your process as this user. Images that follow this pattern are easier to run securely by limiting access to resources.
+* Docker requires root to run, containers themselves do not.
+*  Containers are not trust boundaries, so therefore, anything running in a container should be treated with the same consideration as anything running on the host itself.
+*  Just like you wouldn’t (or shouldn’t) run anything as root on your server, you shouldn’t run anything as root in a container on your server.
+*  start containers with a known uid using the—user
+*  If necessary, create a different Dockerfile for build/debugging/development time. 
+
+
+
+## Other References:
+
+* https://docs.docker.com/develop/develop-images/dockerfile_best-practices (https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#add-or-copy)
+* https://github.com/docker-library/postgres/tree/de8ba87d50de466a1e05e111927d2bc30c2db36d/10
+
+---
