@@ -127,11 +127,19 @@
 
 ## [Threading](https://blog.usejournal.com/multithreading-vs-multiprocessing-in-python-c7dc88b50b5b):
 - **Issue**: One problem arises because threads use the same memory heap, multiple threads can write to the same location in the memory heap which is why the default Python interpreter has a thread-safe mechanism, the “GIL” (Global Interpreter Lock). This prevent conflicts between threads, by executing only one statement at a time (serial processing, or single-threading).
-- **GIL**: The Global Interpretor Lock (GIL) in CPython prevents parallel threads of execution on multiple cores, thus the threading implementation on python is useful mostly for concurrent thread implementation in web-servers.
+- **GIL**: The mechanism used by the CPython interpreter to assure that only one thread executes Python bytecode at a time. This simplifies the CPython implementation by making the object model (including critical built-in types such as dict) implicitly safe against concurrent access. Locking the entire interpreter makes it easier for the interpreter to be multi-threaded, at the expense of much of the parallelism afforded by multi-processor machines
 
 ## Multithreading
 - The multithreading library is lightweight, shares memory, responsible for responsive UI and is used well for I/O bound applications.
 - Multiple threads live in the same process in the same space, each thread will do a specific task, have its own code, own stack memory, instruction pointer, and share heap memory. If a thread has a memory leak it can damage the other threads and parent process.
 
+https://realpython.com/python-concurrency/
+- only multiprocessing actually runs these trains of thought at literally the same time. Threading and asyncio both run on a single processor and therefore only run one at a time.
+
+### Threading:
+- In threading, the operating system actually knows about each thread and can interrupt it at any time to start running a different thread. 
+
+### asyncio:
+- Asyncio, on the other hand, uses cooperative multitasking. The tasks must cooperate by announcing when they are ready to be switched out. 
 - Further Readings:
     - https://glyph.twistedmatrix.com/2014/02/unyielding.html
