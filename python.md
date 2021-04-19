@@ -1,5 +1,9 @@
 # Python:
-- https://docs.python.org/2/faq/design.html#how-are-dictionaries-implemented
+
+- dict:
+    - https://docs.python.org/2/faq/design.html#how-are-dictionaries-implemented
+    - https://lerner.co.il/2019/05/12/python-dicts-and-memory-usage/
+    - https://adamgold.github.io/posts/python-hash-tables-under-the-hood/
 - Python Objects and Class
     - Constructors in Python: `__init__()`
 - There are 33 keywords in Python 3.3
@@ -21,7 +25,12 @@
         - However, if you make changes to any nested objects in original object old_list, you’ll see no changes to the copy new_list.
 - Mutable vs Immutable objects
 - `assert`: statement is used as debugging tool as it halts the program at the point where an error occurs.
--  A list also has `sort()` method which performs the same way as `sorted()`. Only difference being, `sort()` method doesn't return any value and changes the original list itself.
+- List
+    +  A list also has `sort()` method which performs the same way as `sorted()`. Only difference being, `sort()` method doesn't return any value and changes the original list itself.
+    + `.append` calls `list_resize()` code: https://github.com/python/cpython/blob/d93605de7232da5e6a182fd1d5c220639e900159/Objects/listobject.c#L36
+    + Tuple Vs List Performance
+        - https://stackoverflow.com/questions/68630/are-tuples-more-efficient-than-lists-in-python/22140115#22140115)
+        - https://rushter.com/blog/python-lists-and-tuples/
 - `@staticmethod`:
     - create utility methods.
     - prevent overriding at child class.
@@ -143,3 +152,50 @@ https://realpython.com/python-concurrency/
 - Asyncio, on the other hand, uses cooperative multitasking. The tasks must cooperate by announcing when they are ready to be switched out. 
 - Further Readings:
     - https://glyph.twistedmatrix.com/2014/02/unyielding.html
+
+
+---
+
+
+### CPython
+> https://realpython.com/cpython-source-code-guide/
+
+#### PART - I:
+> structure of the source code repository, how to compile from source, and the Python language specification.
+
+- The unique thing about CPython is that it contains both a runtime and the shared language specification that all Python runtimes use.
+- The Python language specification is the document that the description of the Python language.
+- Internally, the CPython runtime does compile your code. It is compiled into a special low-level intermediary language called bytecode that only CPython understands. This code is stored in .pyc files in a hidden directory and cached for execution.
+- Why Is CPython Written in C and Not Python? It's Source-to-source type of compiler. CPython kept its C heritage: many of the standard library modules, like the ssl module or the sockets module, are written in C to access low-level operating system APIs. 
+- The Python Language Specification:
+    + a detailed explanation of the Python language, what is allowed, and how each statement should behave.
+    + Grammer:
+        - The Grammar file is written in a context-notation called Backus-Naur Form (BNF). Python’s grammar file uses the Extended-BNF (EBNF) specification with regular-expression syntax.
+        - The grammar file itself is never used by the Python compiler. Instead, a parser table created by a tool called pgen is used. pgen reads the grammar file and converts it into a parser table. If you make changes to the grammar file, you must regenerate the parser table and recompile Python.
+        - You can changed the CPython syntax and compiled your own version of CPython.
+        - Tokens
+            + contains each of the unique types found as a leaf node in a parse tree. Each token also has a name and a generated unique ID. The names are used to make it simpler to refer to in the tokenizer.
+            + As with the Grammar file, if you change the Tokens file, you need to run pgen again.
+            + There are two tokenizers in the CPython source code: one written in Python (is meant as a utility, designed for debugging), and another written in C(used by the Python compiler, designed for performance). 
+        - there is a way to convert the pgen output into an interactive graph with Python package: instaviz.
+- Memory Management in CPython
+    + The arena is one of CPython’s memory management structures.
+    + The code is within Python/pyarena.c and contains a wrapper around C’s memory allocation and deallocation functions.
+    + Allocation and Deallocation: Python uses two algorithms: a reference counter and a garbage collector.
+    + Whenever an interpreter is instantiated, a PyArena is created and attached one of the fields in the interpreter. During the lifecycle of a CPython interpreter, many arenas could be allocated. They are connected with a linked list. The arena stores a list of pointers to Python Objects as a PyListObject. 
+    + A linked list of allocated blocks is stored inside the arena, so that when an interpreter is stopped, all managed memory blocks can be deallocated in one go using PyArena_Free()
+    + Allocation of raw memory blocks is done via PyMem_RawAlloc().
+    + Reference Counting:
+        * Whenever a value is assigned to a variable in Python, the name of the variable is checked within the locals and globals scope to see if it already exists.
+        * The handling of incrementing and decrementing references based on the language is built into the CPython compiler and the core execution loop, ceval.c
+        * Whenever Py_DECREF() is called, and the counter becomes 0, the PyObject_Free() function is called. 
+    + Garbage Collection:
+        * CPython’s garbage collector is enabled by default, happens in the background and works to deallocate memory that’s been used for objects which are no longer in use.
+        * It's complex, it happens periodically, after a set number of operations.
+        * CPython’s standard library comes with a Python module to interface with the arena and the garbage collector, the gc module. 
+        * print the statistics whenever the garbage collector is run:  `import gc; gc.set_debug(gc.DEBUG_STATS)`
+        * get the threshold: `gc.get_threshold()`
+        * get the current threshold counts: `gc.get_count()`
+        * run the collection algorithm manually: `gc.collect()`
+
+
